@@ -1,7 +1,7 @@
 import math
 
 class Main:
-    inputPath = "day01/puzzle01/input.txt"
+    inputPath = "day01/input.txt"
 
     def calculateFuelSum(self):
         modules = self.readModules()
