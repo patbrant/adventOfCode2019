@@ -1,19 +1,23 @@
 from Opcode import Opcode
 from ParameterMode import ParameterMode
 
-class Main:
-    inputPath = "day05/input.txt"
+class IntComputer:
+    inputPath = ""
     programCode = []
     incrementValue = 1
     instructionPointer = 0
-    inputValue = 0
+    inputValues = []
+    inputValuePointer = 0
+    outputValues = []
 
-    def calculateValueAtPosition0(self, inputValue):
-        self.inputValue = inputValue
+    def __init__(self, inputPath):
+        self.inputPath = inputPath
+
+    def calculateOutputValues(self, inputValues):
+        self.inputValues = inputValues
         self.readProgramCode()
         self.runProgram()
-        print("Program code after execution: ", self.programCode)
-        return self.programCode[0]
+        return self.outputValues
 
     def readProgramCode(self):
         file = open(self.inputPath, "r")
@@ -47,7 +51,8 @@ class Main:
             self.getFromAddress(input1)
         elif (opcode == Opcode.SAVE_AT_ADDRESS):
             input1 = self.getValueOfAddressAt(instructionPointer + 1, ParameterMode.IMMEDIATE)
-            self.saveAtAddress(input1, self.inputValue)
+            self.saveAtAddress(input1, self.inputValues[self.inputValuePointer])
+            self.inputValuePointer += 1
         elif (opcode == Opcode.JUMP_IF_TRUE):
             input1 = self.getValueOfAddressAt(instructionPointer + 1, int(parameterModes[-1:]))
             input2 = self.getValueOfAddressAt(instructionPointer + 2, int(parameterModes[len(parameterModes) - 2]))
@@ -98,7 +103,8 @@ class Main:
         self.incrementValue = 2
 
     def getFromAddress(self, index):
-        print(self.programCode[index])
+        self.outputValues.append(self.programCode[index])
+        #print(self.programCode[index])
         self.incrementValue = 2
 
     def getValueOfAddressAt(self, index, parameterMode):
@@ -106,5 +112,3 @@ class Main:
             return self.programCode[index]
         elif (parameterMode == ParameterMode.POSITION):
             return self.programCode[self.programCode[index]]
-
-Main().calculateValueAtPosition0(5)
