@@ -1,4 +1,5 @@
 from Point import Point 
+from Mover import Mover
 
 class ManhattenDistance:
     inputPath = "day03/input.txt"
@@ -13,28 +14,17 @@ class ManhattenDistance:
         for move in self.wire1Path:
             direction = move[0]
             amount = int(move[1:])
-            for i in range(amount):
-                if (direction == "R"):
-                    self.right(self.wire1Points)
-                elif (direction == "D"):
-                    self.down(self.wire1Points)
-                elif (direction == "L"):
-                    self.left(self.wire1Points)
-                elif (direction == "U"):
-                    self.up(self.wire1Points)
+
+            mover = Mover(self.wire1Points)
+            mover.move(direction, amount)
+
         
         for move in self.wire2Path:
             direction = move[0]
             amount = int(move[1:])
             for i in range(amount):
-                if (direction == "R"):
-                    self.right(self.wire2Points)
-                elif (direction == "D"):
-                    self.down(self.wire2Points)
-                elif (direction == "L"):
-                    self.left(self.wire2Points)
-                elif (direction == "U"):
-                    self.up(self.wire2Points)
+                mover = Mover(self.wire1Points)
+                mover.move(direction, amount)
                 self.checkCrossing()
         
         xySums = []
@@ -54,21 +44,5 @@ class ManhattenDistance:
         for wire1Point in self.wire1Points:
             if (wire2Point.x == wire1Point.x and wire2Point.y == wire1Point.y):
                 self.crossingPoints.append(wire2Point)
-
-    def right(self, wirePath):
-        lastPoint = wirePath[len(wirePath) - 1]
-        wirePath.append(Point(lastPoint.x + 1, lastPoint.y))
-        
-    def down(self, wirePath):
-        lastPoint = wirePath[len(wirePath) - 1]
-        wirePath.append(Point(lastPoint.x, lastPoint.y - 1))
-
-    def left(self, wirePath):
-        lastPoint = wirePath[len(wirePath) - 1]
-        wirePath.append(Point(lastPoint.x - 1, lastPoint.y))
-
-    def up(self, wirePath):
-        lastPoint = wirePath[len(wirePath) - 1]
-        wirePath.append(Point(lastPoint.x, lastPoint.y + 1))
 
 print(ManhattenDistance().calculateShortesManhattenDistance())

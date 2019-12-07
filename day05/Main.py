@@ -5,8 +5,11 @@ class Main:
     inputPath = "day05/input.txt"
     programCode = []
     incrementValue = 1
+    instructionPointer = 0
+    inputValue = 0
 
-    def calculateValueAtPosition0(self):
+    def calculateValueAtPosition0(self, inputValue):
+        self.inputValue = inputValue
         self.readProgramCode()
         self.runProgram()
         print("Program code after execution: ", self.programCode)
@@ -19,15 +22,14 @@ class Main:
         self.programCode = list(map(int, programChunks))
 
     def runProgram(self):
-        x = 0
         while(True):
-            instruction = str(self.programCode[x])
+            instruction = str(self.programCode[self.instructionPointer])
             opcode = int(instruction[-2:])
             parameterModes = "0000000" + instruction[0:len(instruction) - 2]
             if (opcode == Opcode.HALT):
                 break
-            self.runInstruction(opcode, parameterModes, x)
-            x = x + self.incrementValue
+            self.runInstruction(opcode, parameterModes, self.instructionPointer)
+            self.instructionPointer = self.instructionPointer + self.incrementValue
 
     def runInstruction(self, opcode, parameterModes, instructionPointer):
         if (opcode == Opcode.ADDITION):
@@ -41,11 +43,47 @@ class Main:
             outputIndex = self.programCode[instructionPointer + 3]
             self.multiply(input1, input2, outputIndex)
         elif (opcode == Opcode.GET_FROM_ADDRESS):
-            input1 = self.getValueOfAddressAt(instructionPointer + 1, 1)
+            input1 = self.getValueOfAddressAt(instructionPointer + 1, ParameterMode.IMMEDIATE)
             self.getFromAddress(input1)
         elif (opcode == Opcode.SAVE_AT_ADDRESS):
-            input1 = self.getValueOfAddressAt(instructionPointer + 1, 1)
-            self.saveAtAddress(input1, 1)
+            input1 = self.getValueOfAddressAt(instructionPointer + 1, ParameterMode.IMMEDIATE)
+            self.saveAtAddress(input1, self.inputValue)
+        elif (opcode == Opcode.JUMP_IF_TRUE):
+            input1 = self.getValueOfAddressAt(instructionPointer + 1, int(parameterModes[-1:]))
+            input2 = self.getValueOfAddressAt(instructionPointer + 2, int(parameterModes[len(parameterModes) - 2]))
+            if (input1 != 0):
+                self.incrementValue = 0
+                self.instructionPointer = input2
+            else:
+                self.incrementValue = 3
+        elif (opcode == Opcode.JUMP_IF_FALSE):
+            input1 = self.getValueOfAddressAt(instructionPointer + 1, int(parameterModes[-1:]))
+            input2 = self.getValueOfAddressAt(instructionPointer + 2, int(parameterModes[len(parameterModes) - 2]))
+            if (input1 == 0):
+                self.incrementValue = 0
+                self.instructionPointer = input2
+            else:
+                self.incrementValue = 3
+        elif (opcode == Opcode.LESS_THAN):
+            input1 = self.getValueOfAddressAt(instructionPointer + 1, int(parameterModes[-1:]))
+            input2 = self.getValueOfAddressAt(instructionPointer + 2, int(parameterModes[len(parameterModes) - 2]))
+            outputIndex = self.programCode[instructionPointer + 3]
+            if (input1 < input2):
+                self.programCode[outputIndex] = 1
+            else:
+                self.programCode[outputIndex] = 0
+            self.incrementValue = 4
+
+        elif (opcode == Opcode.EQUALS):
+            input1 = self.getValueOfAddressAt(instructionPointer + 1, int(parameterModes[-1:]))
+            input2 = self.getValueOfAddressAt(instructionPointer + 2, int(parameterModes[len(parameterModes) - 2]))
+            outputIndex = self.programCode[instructionPointer + 3]
+            if (input1 == input2):
+                self.programCode[outputIndex] = 1
+            else:
+                self.programCode[outputIndex] = 0
+            self.incrementValue = 4
+
     
     def add(self, input1, input2, outputIndex):
         self.programCode[outputIndex] = input1 + input2
@@ -69,4 +107,4 @@ class Main:
         elif (parameterMode == ParameterMode.POSITION):
             return self.programCode[self.programCode[index]]
 
-Main().calculateValueAtPosition0()
+Main().calculateValueAtPosition0(5)
